@@ -38,7 +38,9 @@ if (!isset($_GET['invention_id'])) {
     exit;
 }
 
-// ตรวจสอบการบล็อก
+// ตรวจสอบการบล็อก - อนุญาตให้แก้ไขคะแนนได้
+// (ไม่บล็อกการเข้าหน้านี้ เพื่อให้สามารถปรับปรุงคะแนนได้)
+/*
 $sql_block = "SELECT * FROM block_vote WHERE invention_id = :invention_id AND committee_id = :committee_id";
 $stmt_block = $pdo->prepare($sql_block);
 $stmt_block->bindParam(':invention_id', $invention_id, PDO::PARAM_INT);
@@ -52,6 +54,7 @@ if ($stmt_block->rowCount() > 0) {
     header("location:vote.php");
     exit;
 }
+*/
 
 // ดึงข้อมูลสิ่งประดิษฐ์
 $sql_invention = "SELECT * FROM invention WHERE invention_id = :invention_id";
@@ -163,7 +166,6 @@ while ($row_lable_score = $stmt_lable_score->fetch(PDO::FETCH_ASSOC)) {
             transition: all 0.3s ease;
             background-color: white;
             font-weight: 500;
-            gap: 15px;
         }
         
         .score-label:hover {
@@ -180,20 +182,9 @@ while ($row_lable_score = $stmt_lable_score->fetch(PDO::FETCH_ASSOC)) {
             box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
         }
         
-        .score-icon {
-            font-size: 2rem;
-            min-width: 40px;
-            text-align: center;
-            margin-top: 5px;
-            transition: color 0.3s ease;
-        }
-        
-        .score-option input[type="radio"]:checked + .score-label .score-icon {
-            color: white !important;
-        }
-        
         .score-content {
             flex: 1;
+            width: 100%;
         }
         
         .score-header {
@@ -352,29 +343,106 @@ while ($row_lable_score = $stmt_lable_score->fetch(PDO::FETCH_ASSOC)) {
             border-top: 2px solid #f1f5f9;
         }
         
-        .btn-submit {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        .score-summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            border: none;
-            padding: 15px 40px;
-            border-radius: 10px;
-            font-size: 1.1rem;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .score-summary-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            justify-content: center;
+        }
+        
+        .score-summary-header h5 {
+            margin: 0;
+            font-size: 1.4rem;
             font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
         }
         
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        .score-summary-header i {
+            font-size: 1.8rem;
         }
         
-        .btn-submit:disabled {
-            background: #9ca3af;
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
+        .score-summary-content {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .score-summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.1rem;
+            padding: 10px 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+        }
+        
+        .score-summary-row.total-score {
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .score-number, .score-total {
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+        
+        .progress-summary {
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        .progress-bar-summary {
+            height: 12px;
+            background-color: rgba(255,255,255,0.2);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        
+        .progress-fill-summary {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #34d399);
+            border-radius: 6px;
+            transition: width 0.3s ease;
+        }
+        
+        .auto-save-status {
+            background-color: #f0fdf4;
+            border: 1px solid #10b981;
+            color: #065f46;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-align: center;
+            line-height: 1.4;
+        }
+        
+        .auto-save-status.saving {
+            background-color: #fef3c7;
+            border-color: #f59e0b;
+            color: #92400e;
+        }
+        
+        .auto-save-status.error {
+            background-color: #fef2f2;
+            border-color: #ef4444;
+            color: #dc2626;
         }
         
         .alert-info {
@@ -392,6 +460,8 @@ while ($row_lable_score = $stmt_lable_score->fetch(PDO::FETCH_ASSOC)) {
             100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
         }
         
+        /* Floating Score Summary CSS - ลบออกแล้ว เปลี่ยนมาใช้ summary ข้างล่าง */
+        
         @media (max-width: 768px) {
             .voting-container {
                 padding: 10px;
@@ -405,16 +475,16 @@ while ($row_lable_score = $stmt_lable_score->fetch(PDO::FETCH_ASSOC)) {
                 padding: 20px;
             }
             
-            .floating-score {
-                top: 10px;
-                right: 10px;
-                left: 10px;
-                min-width: auto;
-                padding: 15px;
+            .score-summary-card {
+                padding: 20px;
             }
             
-            .floating-score.minimized {
-                padding: 10px;
+            .score-summary-header h5 {
+                font-size: 1.2rem;
+            }
+            
+            .score-summary-row {
+                font-size: 1rem;
             }
         }
     </style>
@@ -455,19 +525,19 @@ while ($row_lable_score = $stmt_lable_score->fetch(PDO::FETCH_ASSOC)) {
                         <div class="progress-bar-custom">
                             <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
                         </div>
-                        <small class="text-muted">กรุณาลงคะแนนให้ครบทุกหัวข้อ</small>
+                        <small class="text-muted">คุณสามารถเปลี่ยนแปลงคะแนนได้ตลอดเวลา</small>
                     </div>
 
                     <!-- ฟอร์มลงคะแนน -->
                     <div class="voting-form">
-                        <form id="votingForm" method="POST" action="process_vote.php">
+                        <form id="votingForm">
                             <input type="hidden" name="invention_id" value="<?php echo $invention_id; ?>">
                             
                             <?php
-                            // ดึงข้อมูลหัวข้อการประเมินตามต้นฉบับ โดยกรอง type_id
+                            // ดึงข้อมูลหัวข้อการประเมินเฉพาะที่เปิดใช้งาน (status = 1)
                             $sql_points = "SELECT pt.* FROM points_topic pt 
                                          INNER JOIN points_type pty ON pt.points_type_id = pty.points_type_id 
-                                         WHERE pty.type_id = :type_id";
+                                         WHERE pty.type_id = :type_id AND pty.status = 1";
                             $stmt_points = $pdo->prepare($sql_points);
                             $stmt_points->bindParam(':type_id', $type_id, PDO::PARAM_INT);
                             $stmt_points->execute();
@@ -549,31 +619,23 @@ while ($row_lable_score = $stmt_lable_score->fetch(PDO::FETCH_ASSOC)) {
                                             $score_levels = [
                                                 [
                                                     'id' => $row_scoring_criteria['scoring_criteria_4'], 
-                                                    'label' => 'ดีมาก', 
-                                                    'icon' => 'ti-star-filled',
-                                                    'considerations' => $row_scoring_criteria['considerations_4'],
-                                                    'color' => '#10b981'
+                                                    'label' => 'ดีมาก',
+                                                    'considerations' => $row_scoring_criteria['considerations_4']
                                                 ],
                                                 [
                                                     'id' => $row_scoring_criteria['scoring_criteria_3'], 
-                                                    'label' => 'ดี', 
-                                                    'icon' => 'ti-thumb-up',
-                                                    'considerations' => $row_scoring_criteria['considerations_3'],
-                                                    'color' => '#3b82f6'
+                                                    'label' => 'ดี',
+                                                    'considerations' => $row_scoring_criteria['considerations_3']
                                                 ],
                                                 [
                                                     'id' => $row_scoring_criteria['scoring_criteria_2'], 
-                                                    'label' => 'พอใช้', 
-                                                    'icon' => 'ti-hand-stop',
-                                                    'considerations' => $row_scoring_criteria['considerations_2'],
-                                                    'color' => '#f59e0b'
+                                                    'label' => 'พอใช้',
+                                                    'considerations' => $row_scoring_criteria['considerations_2']
                                                 ],
                                                 [
                                                     'id' => $row_scoring_criteria['scoring_criteria_1'], 
-                                                    'label' => 'ปรับปรุง', 
-                                                    'icon' => 'ti-alert-triangle',
-                                                    'considerations' => $row_scoring_criteria['considerations_1'],
-                                                    'color' => '#ef4444'
+                                                    'label' => 'ปรับปรุง',
+                                                    'considerations' => $row_scoring_criteria['considerations_1']
                                                 ]
                                             ];
                                             
@@ -596,11 +658,8 @@ while ($row_lable_score = $stmt_lable_score->fetch(PDO::FETCH_ASSOC)) {
                                                                name="score[<?php echo $row_scoring_criteria['scoring_criteria_id']; ?>]" 
                                                                value="<?php echo $score_value; ?>"
                                                                <?php echo $is_checked ? 'checked' : ''; ?>
-                                                               onchange="updateProgress()">
+                                                               onchange="updateProgress(); autoSaveScore(this)">
                                                         <label for="score_<?php echo $row_scoring_criteria['scoring_criteria_id']; ?>_<?php echo $level['id']; ?>" class="score-label">
-                                                            <div class="score-icon" style="color: <?php echo $level['color']; ?>">
-                                                                <i class="ti <?php echo $level['icon']; ?>"></i>
-                                                            </div>
                                                             <div class="score-content">
                                                                 <div class="score-header">
                                                                     <span class="score-value"><?php echo is_numeric($score_value) ? number_format(floatval($score_value), 1) : $score_value; ?> คะแนน</span>
@@ -635,15 +694,37 @@ while ($row_lable_score = $stmt_lable_score->fetch(PDO::FETCH_ASSOC)) {
                             ?>
                             
                             <div class="submit-section">
-                                <div class="alert alert-info mb-4">
-                                    <i class="ti ti-info-circle me-2"></i>
-                                    กรุณาตรวจสอบคะแนนทุกหัวข้อให้ครบถ้วนก่อนส่งคะแนน
+                                <div class="score-summary-card">
+                                    <div class="score-summary-header">
+                                        <i class="ti ti-calculator"></i>
+                                        <h5>สรุปคะแนนการประเมิน</h5>
+                                    </div>
+                                    <div class="score-summary-content">
+                                        <div class="score-summary-row">
+                                            <span>จำนวนข้อที่ลงคะแนนแล้ว:</span>
+                                            <span id="completedCount" class="score-number">0</span>
+                                        </div>
+                                        <div class="score-summary-row">
+                                            <span>จำนวนข้อทั้งหมด:</span>
+                                            <span id="totalCount" class="score-number">0</span>
+                                        </div>
+                                        <div class="score-summary-row total-score">
+                                            <span>คะแนนรวมทั้งหมด:</span>
+                                            <span id="totalScore" class="score-total">0.0 คะแนน</span>
+                                        </div>
+                                        <div class="progress-summary">
+                                            <div class="progress-bar-summary">
+                                                <div class="progress-fill-summary" id="progressFillSummary" style="width: 0%"></div>
+                                            </div>
+                                            <small id="progressTextSummary">0% เสร็จสิ้น</small>
+                                        </div>
+                                    </div>
                                 </div>
                                 
-                                <button type="submit" class="btn btn-submit" id="submitBtn" disabled>
-                                    <i class="ti ti-send me-2"></i>
-                                    ส่งคะแนนการประเมิน
-                                </button>
+                                <div class="auto-save-status" id="autoSaveStatus">
+                                    <i class="ti ti-check-circle"></i>
+                                    <span>บันทึกอัตโนมัติทันทีเมื่อเลือกคะแนน • สามารถแก้ไขได้ตลอดเวลา</span>
+                                </div>
                                 
                                 <div class="mt-3">
                                     <a href="vote.php" class="btn btn-outline-secondary">
@@ -655,31 +736,6 @@ while ($row_lable_score = $stmt_lable_score->fetch(PDO::FETCH_ASSOC)) {
                         </form>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Floating Score Summary -->
-    <div id="floatingScore" class="floating-score hidden">
-        <div class="score-summary-header">
-            <i class="ti ti-calculator"></i>
-            <span>คะแนนรวม</span>
-            <button class="minimize-btn" onclick="toggleScoreSummary()">
-                <i class="ti ti-minus" id="minimizeIcon"></i>
-            </button>
-        </div>
-        <div class="score-summary-details" id="scoreSummaryDetails">
-            <div class="score-summary-row">
-                <span>ลงคะแนนแล้ว:</span>
-                <span id="completedCount">0</span>
-            </div>
-            <div class="score-summary-row">
-                <span>ทั้งหมด:</span>
-                <span id="totalCount">0</span>
-            </div>
-            <div class="score-summary-row total">
-                <span>คะแนนรวม:</span>
-                <span id="totalScore">0.0</span>
             </div>
         </div>
     </div>
@@ -701,52 +757,87 @@ while ($row_lable_score = $stmt_lable_score->fetch(PDO::FETCH_ASSOC)) {
     </div>
 
     <script>
-        // ตัวแปรสำหรับ floating score
-        let isScoreMinimized = false;
-        
-        // ฟังก์ชันแสดง/ซ่อน floating score summary
-        function toggleScoreSummary() {
-            const floatingScore = document.getElementById('floatingScore');
-            const details = document.getElementById('scoreSummaryDetails');
-            const icon = document.getElementById('minimizeIcon');
+        // ฟังก์ชันบันทึกคะแนนอัตโนมัติ
+        function autoSaveScore(radioElement) {
+            const criteriaId = radioElement.name.match(/\[(\d+)\]/)[1];
+            const score = radioElement.value;
+            const inventionId = document.querySelector('input[name="invention_id"]').value;
             
-            isScoreMinimized = !isScoreMinimized;
+            // แสดงสถานะกำลังบันทึก
+            const statusEl = document.getElementById('autoSaveStatus');
+            statusEl.className = 'auto-save-status saving';
+            statusEl.innerHTML = '<i class="ti ti-loader"></i><span>กำลังบันทึก...</span>';
             
-            if (isScoreMinimized) {
-                floatingScore.classList.add('minimized');
-                details.style.display = 'none';
-                icon.className = 'ti ti-plus';
-            } else {
-                floatingScore.classList.remove('minimized');
-                details.style.display = 'flex';
-                icon.className = 'ti ti-minus';
-            }
+            // ส่งข้อมูลไปบันทึก
+            fetch('auto_save_score.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `invention_id=${inventionId}&scoring_criteria_id=${criteriaId}&score=${score}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    statusEl.className = 'auto-save-status';
+                    const actionText = data.is_update ? 'อัพเดท' : 'บันทึก';
+                    statusEl.innerHTML = `<i class="ti ti-check-circle"></i><span>${actionText}เรียบร้อย</span>`;
+                    
+                    // แสดงข้อความพิเศษถ้าลงครบแล้ว
+                    if (data.is_complete) {
+                        setTimeout(() => {
+                            statusEl.innerHTML = '<i class="ti ti-star"></i><span>ลงคะแนนครบถ้วนทุกข้อแล้ว</span>';
+                        }, 2000);
+                    } else {
+                        setTimeout(() => {
+                            statusEl.innerHTML = '<i class="ti ti-check-circle"></i><span>บันทึกอัตโนมัติทันทีเมื่อเลือกคะแนน • สามารถแก้ไขได้ตลอดเวลา</span>';
+                        }, 2000);
+                    }
+                } else {
+                    statusEl.className = 'auto-save-status error';
+                    statusEl.innerHTML = '<i class="ti ti-alert-circle"></i><span>เกิดข้อผิดพลาด: ' + data.message + '</span>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                statusEl.className = 'auto-save-status error';
+                statusEl.innerHTML = '<i class="ti ti-alert-circle"></i><span>เกิดข้อผิดพลาดในการบันทึก</span>';
+            });
         }
         
-        // ฟังก์ชันอัพเดทคะแนนรวม
-        function updateFloatingScore() {
-            const sections = document.querySelectorAll('.scoring-section');
-            let completedCount = 0;
-            let totalScore = 0;
-            
-            sections.forEach(section => {
-                const selectedRadio = section.querySelector('input[type="radio"]:checked');
-                if (selectedRadio) {
-                    completedCount++;
-                    const score = parseFloat(selectedRadio.value) || 0;
-                    totalScore += score;
-                }
-            });
-            
-            // อัพเดท UI
-            document.getElementById('completedCount').textContent = completedCount;
-            document.getElementById('totalCount').textContent = sections.length;
-            document.getElementById('totalScore').textContent = totalScore.toFixed(1);
-            
-            // แสดง floating score เมื่อเริ่มลงคะแนน
-            const floatingScore = document.getElementById('floatingScore');
-            if (completedCount > 0) {
-                floatingScore.classList.remove('hidden');
+        // ฟังก์ชันอัพเดทสรุปคะแนนข้างล่าง
+        function updateScoreSummary() {
+            try {
+                const sections = document.querySelectorAll('.scoring-section');
+                let completedCount = 0;
+                let totalScore = 0;
+                
+                sections.forEach(section => {
+                    const selectedRadio = section.querySelector('input[type="radio"]:checked');
+                    if (selectedRadio) {
+                        completedCount++;
+                        const score = parseFloat(selectedRadio.value) || 0;
+                        totalScore += score;
+                    }
+                });
+                
+                const percentage = sections.length > 0 ? Math.round((completedCount / sections.length) * 100) : 0;
+                
+                // อัพเดท UI ข้างล่าง
+                const completedCountEl = document.querySelector('#completedCount');
+                const totalCountEl = document.querySelector('#totalCount');
+                const totalScoreEl = document.querySelector('#totalScore');
+                const progressFillEl = document.querySelector('#progressFillSummary');
+                const progressTextEl = document.querySelector('#progressTextSummary');
+                
+                if (completedCountEl) completedCountEl.textContent = completedCount;
+                if (totalCountEl) totalCountEl.textContent = sections.length;
+                if (totalScoreEl) totalScoreEl.textContent = totalScore.toFixed(1) + ' คะแนน';
+                if (progressFillEl) progressFillEl.style.width = percentage + '%';
+                if (progressTextEl) progressTextEl.textContent = percentage + '% เสร็จสิ้น';
+                
+            } catch (error) {
+                console.error('Error updating score summary:', error);
             }
         }
         
@@ -819,58 +910,22 @@ while ($row_lable_score = $stmt_lable_score->fetch(PDO::FETCH_ASSOC)) {
             
             const percentage = Math.round((completedCriteria / totalCriteria) * 100);
             
-            // อัพเดท progress bar
+            // อัพเดท progress bar หลัก
             document.getElementById('progress-fill').style.width = percentage + '%';
             document.getElementById('progress-text').textContent = percentage + '%';
             
-            // อัพเดท floating score
-            updateFloatingScore();
-            
-            // เปิด/ปิดปุ่มส่ง
-            const submitBtn = document.getElementById('submitBtn');
-            if (completedCriteria === totalCriteria) {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="ti ti-send me-2"></i>ส่งคะแนนการประเมิน';
-            } else {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="ti ti-send me-2"></i>กรุณาลงคะแนนให้ครบ (' + completedCriteria + '/' + totalCriteria + ')';
-            }
+            // อัพเดท summary ข้างล่าง
+            updateScoreSummary();
         }
         
         // เรียกใช้เมื่อโหลดหน้า
         document.addEventListener('DOMContentLoaded', function() {
-            updateProgress();
+            // อัพเดทจำนวนรวมทันที
+            const totalSections = document.querySelectorAll('.scoring-section').length;
+            document.getElementById('totalCount').textContent = totalSections;
             
-            // เพิ่มการยืนยันก่อนส่งคะแนน
-            document.getElementById('votingForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // สรุปคะแนนทั้งหมด
-                let scoresSummary = 'สรุปคะแนนที่จะส่ง:\n\n';
-                let totalScore = 0;
-                let criteriaCount = 0;
-                
-                document.querySelectorAll('.scoring-section').forEach(section => {
-                    const sectionTitle = section.querySelector('.section-title').textContent.trim();
-                    const selectedRadio = section.querySelector('input[type="radio"]:checked');
-                    
-                    if (selectedRadio) {
-                        const score = parseFloat(selectedRadio.value);
-                        const label = selectedRadio.nextElementSibling.querySelector('.score-description').textContent;
-                        scoresSummary += `${sectionTitle}: ${score} คะแนน (${label})\n`;
-                        totalScore += score;
-                        criteriaCount++;
-                    }
-                });
-                
-                scoresSummary += `\n📊 คะแนนรวม: ${totalScore.toFixed(1)} คะแนน`;
-                scoresSummary += `\n📋 จำนวนหัวข้อ: ${criteriaCount} หัวข้อ`;
-                scoresSummary += '\n\n⚠️ หมายเหตุ: หลังจากส่งแล้วจะไม่สามารถแก้ไขได้';
-                
-                if (confirm(scoresSummary + '\n\nคุณต้องการส่งคะแนนนี้หรือไม่?')) {
-                    this.submit();
-                }
-            });
+            updateProgress();
+            updateScoreSummary();
             
             // เพิ่มเอฟเฟกต์เมื่อเลือกคะแนน - เลื่อนไปข้อถัดไปเรื่อยๆ
             document.querySelectorAll('input[type="radio"]').forEach(radio => {
@@ -903,7 +958,7 @@ while ($row_lable_score = $stmt_lable_score->fetch(PDO::FETCH_ASSOC)) {
                             }, 1000);
                         }, 300);
                     } else {
-                        // ถ้าลงคะแนนครบแล้ว เลื่อนไปปุ่มส่ง
+                        // ถ้าลงคะแนนครบแล้ว เลื่อนไปส่วนสรุป
                         setTimeout(() => {
                             const submitSection = document.querySelector('.submit-section');
                             if (submitSection) {
