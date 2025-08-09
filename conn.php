@@ -1,6 +1,6 @@
 <?php
 $host = 'localhost'; // เช่น 'localhost' หรือ '127.0.0.1'
-$dbname = 'invention_67'; // ชื่อฐานข้อมูลที่คุณต้องการเชื่อมต่อ
+$dbname = 'prasat_invemtion'; // ชื่อฐานข้อมูลที่คุณต้องการเชื่อมต่อ
 $username = 'root'; // ชื่อผู้ใช้ของ MySQL
 $password = ''; // รหัสผ่านของ MySQL
 
